@@ -1,13 +1,12 @@
 import { isCelebrateError } from 'celebrate';
 
 export default (err, req, res, next) => {
+  console.log(err);
   const statusCode = err.statusCode || 500;
   const message = err.message;
   const status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    console.log(err);
-
     if (isCelebrateError(err)) {
       return res.status(400).json({
         status,
