@@ -1,12 +1,13 @@
 import express from 'express';
 import morgan from 'morgan';
 import userRoutes from './routes/userRoutes.js';
+import cityRoutes from './routes/cityRoutes.js';
 import AppError from './utils/appError.js';
 import globalErrorHandler from './controllers/globalError.js';
 
 const app = express();
 
-// morgan
+// morgan (logger)
 app.use(morgan('dev'));
 
 // Body parser
@@ -17,6 +18,7 @@ app.use(express.static('public'));
 
 // API routes
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/', cityRoutes);
 
 // All unknown requests
 app.use('*', (req, res, next) =>
