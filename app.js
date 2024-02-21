@@ -17,8 +17,8 @@ app.use(express.json());
 app.use(express.static('public'));
 
 // API routes
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/', cityRoutes);
+app.use('/api/v1/auth', userRoutes);
+app.use('/api/v1/cities', cityRoutes);
 
 // All unknown requests
 app.use('*', (req, res, next) =>

@@ -9,6 +9,6 @@ router.post('/signup', signupValidation, signUp);
 router.post('/login', login);
 router.get('/verify-account/:verifyToken', verifyAccount);
 
-router.get('/get-all-users', getAllUsers);
+router.get('/users', getAllUsers);
 
 export default router;

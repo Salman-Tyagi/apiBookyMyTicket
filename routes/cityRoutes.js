@@ -3,14 +3,14 @@ import * as cityController from '../controllers/cityController.js';
 
 const router = express.Router();
 
-router.get('/cities', cityController.getAllCities);
+router.get('/', cityController.getAllCities);
 
-router.get('/city/:id', cityController.getCity);
+router.get('/:id', cityController.getCity);
 
-router.post('/city', cityController.createCity);
+router.post('/', cityController.createCity);
 
-router.patch('/city/:id', cityController.updateCity);
+router.patch('/:id', cityController.updateCity);
 
-router.delete('/city/:id', cityController.delelteCity);
+router.delete('/:id', cityController.delelteCity);
 
 export default router;
