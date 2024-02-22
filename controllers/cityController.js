@@ -28,7 +28,15 @@ export const getCity = async (req, res, next) => {
 
 export const createCity = async (req, res, next) => {
   try {
-    const newCity = await City.create(req.body);
+    if (req.file.mimetype !== 'image/png')
+      return next(
+        new AppError('Unsupported file, only .jpg, .jpeg, .png allowed', 400)
+      );
+
+    // Add image to the body object
+    const obj = { ...req.body, image: req.file.filename };
+
+    const newCity = await City.create(obj);
 
     res.status(201).json({
       status: 'success',

@@ -4,7 +4,7 @@ const citySchema = new mongoose.Schema({
   city: {
     type: String,
   },
-  cityLogo: {
+  image: {
     type: String,
   },
   createdAt: {
