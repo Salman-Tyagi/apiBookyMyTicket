@@ -17,7 +17,15 @@ const storage = multer.diskStorage({
 
 // Document type must be image
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype !== 'image/png') return cb('File not supported', false);
+  if (file.mimetype !== 'image/png')
+    return cb(
+      {
+        status: 'fail',
+        statusCode: 400,
+        message: 'File not supported, only .jpg, .jpeg, .png allowed',
+      },
+      false
+    );
 
   cb(null, true);
 };
