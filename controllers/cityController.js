@@ -6,6 +6,7 @@ export const getAllCities = async (req, res, next) => {
 
     res.status(200).json({
       status: 'success',
+      length: cities.length,
       data: cities,
     });
   } catch (err) {
@@ -30,7 +31,7 @@ export const createCity = async (req, res, next) => {
   try {
     const obj = { ...req.body };
     if (req.file) obj.image = req.file.filename;
-    
+
     const newCity = await City.create(obj);
 
     res.status(201).json({
@@ -44,7 +45,10 @@ export const createCity = async (req, res, next) => {
 
 export const updateCity = async (req, res, next) => {
   try {
-    const city = await City.findByIdAndUpdate(req.params.id);
+    const city = await City.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     res.status(201).json({
       status: 'success',
