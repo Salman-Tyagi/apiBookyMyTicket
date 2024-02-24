@@ -1,5 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
+
 import userRoutes from './routes/userRoutes.js';
 import cityRoutes from './routes/cityRoutes.js';
 import AppError from './utils/appError.js';
@@ -15,6 +17,8 @@ app.use(express.json());
 
 // Static files
 app.use(express.static('public'));
+
+app.use(cors());
 
 // API routes
 app.use('/api/v1/auth', userRoutes);
