@@ -4,6 +4,7 @@ import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
 import sendMail from '../utils/email.js';
 
+/*
 export const signUp = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
@@ -126,6 +127,83 @@ export const login = async (req, res, next) => {
       token,
       data: user,
     });
+  } catch (err) {
+    next(err);
+  }
+};
+*/
+
+export const loginByEmail = async (req, res, next) => {
+  try {
+    // 4 digit OTP
+    const OTP = Math.floor(Math.random() * 10000);
+    const user = await User.create({ ...req.body, OTP });
+
+    // Mail options
+    const options = {
+      to: user.email,
+      subject: 'Welcome to the bookmyticket',
+      html: `<div>
+              <h3>Your OTP is ${OTP}</h3>
+             </div>`,
+    };
+
+    // Send OTP to the user's email to verify email
+    await sendMail(options);
+
+    res.status(201).json({
+      status: 'success',
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const verifyEmail = async (req, res, next) => {
+  try {
+    // Check email is in valid format DONE by celebrate
+    const { email, OTP } = req.body;
+
+    // Find user based on email
+    const user = await User.findOne({ email });
+    if (!user) return next(new AppError('User does not exist', 404));
+
+    // Check OTP is correct
+    if (user.OTP !== OTP) return next(new AppError('OTP is not correct', 400));
+
+    // Delete OTP and verify the user
+    user.OTP = undefined;
+    user.verified = true;
+    await user.save();
+
+    // Generate token and allow user to login
+    const token = jwt.sign({ set: user.email }, process.env.JWT_SECRET_TOKEN, {
+      expiresIn: process.env.JWT_SECRET_TOKEN_EXPIRES_IN,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      token,
+      data: user,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const protect = async (req, res, next) => {
+  try {
+    // Check user exists or not in DB
+    const user = await User.find();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateProfile = async (req, res, next) => {
+  try {
+    // Find user
   } catch (err) {
     next(err);
   }

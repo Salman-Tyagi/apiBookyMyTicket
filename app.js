@@ -4,6 +4,7 @@ import cors from 'cors';
 
 import userRoutes from './routes/userRoutes.js';
 import cityRoutes from './routes/cityRoutes.js';
+import movieRoutes from './routes/movieRoutes.js';
 import AppError from './utils/appError.js';
 import globalErrorHandler from './controllers/globalError.js';
 
@@ -23,6 +24,7 @@ app.use(cors());
 // API routes
 app.use('/api/v1/auth', userRoutes);
 app.use('/api/v1/cities', cityRoutes);
+app.use('/api/v1/movies', movieRoutes);
 
 // All unknown requests
 app.use('*', (req, res, next) =>

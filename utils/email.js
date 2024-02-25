@@ -4,6 +4,7 @@ dotenv.config({ config: 'env' });
 // import nodemailer from 'nodemailer';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 const sendMail = async ({ to, subject, message, html }) => {
   try {
     const option = {
