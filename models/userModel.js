@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
+/*
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -39,6 +40,7 @@ const userSchema = new mongoose.Schema({
     default: Date.now(),
   },
 });
+*/
 
 // DO NOT USE HOOKS, THEY CREATE DEPENCY IN MONGO ENVIRONMENT
 
@@ -62,9 +64,49 @@ const userSchema = new mongoose.Schema({
 //   next();
 // });
 
-userSchema.methods.correctPassword = async function (inputPassword) {
-  return await bcrypt.compare(inputPassword, this.password);
-};
+// userSchema.methods.correctPassword = async function (inputPassword) {
+//   return await bcrypt.compare(inputPassword, this.password);
+// };
+
+const userSchema = new mongoose.Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+    },
+    OTP: {
+      type: Number,
+    },
+    mobileNumber: {
+      type: Number,
+    },
+    firstName: {
+      type: String,
+    },
+    lastName: String,
+    birthday: Date,
+    identity: String,
+    married: Boolean,
+    pincode: Number,
+    address: String,
+    landmark: String,
+    city: String,
+    state: String,
+    
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
+  },
+  {
+    // To remove __v from document
+    versionKey: false,
+  }
+);
 
 const User = mongoose.model('User', userSchema);
 
