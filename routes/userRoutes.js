@@ -5,9 +5,23 @@ import * as validate from '../middleware/validate.js';
 
 const router = express.Router();
 
-// router.post('/signup', signupValidation, signUp);
-// router.post('/login', login);
-// router.get('/verify-account/:verifyToken', verifyAccount);
+/*
+router.post('/signup', validate.signup, authController.signUp);
+router.post('/login', authController.login);
+router.get('/verify-account/:verifyToken', authController.verifyAccount);
+
+router.post(
+  '/forgot-password',
+  validate.forgotPassword,
+  authController.forgotPassword
+);
+
+router.post(
+  '/reset-password/:resetToken',
+  validate.resetPassword,
+  authController.resetPassword
+);
+*/
 
 router.post(
   '/login-by-email',
@@ -20,6 +34,7 @@ router.post('/verify-email', validate.verifyEmail, authController.verifyEmail);
 router.post(
   '/update-profile',
   validate.updateProfile,
+  authController.protect,
   authController.updateProfile
 );
 
