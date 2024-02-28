@@ -1,5 +1,6 @@
-import bcrypt from 'bcryptjs';
+// import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+// import bcrypt from 'bcryptjs';
 import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
 import sendMail from '../utils/email.js';
@@ -28,7 +29,7 @@ export const signUp = async (req, res, next) => {
 
     const verifyLink = `${req.protocol}://${req.get(
       'host'
-    )}/api/v1/users/verify-account/${verifyToken}`;
+    )}/api/v1/auth/verify-account/${verifyToken}`;
 
     const html = `<div style='padding: 2rem 0'>
                     <h2 style='font-size: 1.6rem;
@@ -53,19 +54,14 @@ export const signUp = async (req, res, next) => {
                     </a>
                   </div>`;
 
-    try {
-      await sendMail({
-        to: newUser.email,
-        subject: 'Welcome to the BookMyTicket 🙂',
-        // message: `Thank you for signing up. Please verify your account by clicking the given link below:\n${verifyLink}`,
-        html,
-      });
-    } catch (err) {
-      console.log(err);
-    }
+    await sendMail({
+      to: newUser.email,
+      subject: 'Welcome to the BookMyTicket 🙂',
+      // message: `Thank you for signing up. Please verify your account by clicking the given link below:\n${verifyLink}`,
+      html,
+    });
 
     newUser.password = undefined;
-    newUser.verified = undefined;
     newUser.createdAt = undefined;
 
     res.status(201).json({
@@ -108,15 +104,12 @@ export const login = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+password');
     if (!user) return next(new AppError('Incorrect email or password', 400));
 
-    const validPassword = await user.correctPassword(password);
-    if (!validPassword)
-      return next(new AppError('Incorrect email or password', 400));
+    const comparePassword = await bcrypt.compare(password, user.password);
+    if (!comparePassword)
+      return next(new AppError('Incorrect email or password', 401));
 
-    if (!user.verified) return next(new AppError('Email not verified', 402));
-
+    if (!user.verified) return next(new AppError('Email not verified', 401));
     user.password = undefined;
-    user.verified = undefined;
-    user.createdAt = undefined;
 
     const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET_TOKEN, {
       expiresIn: process.env.JWT_SECRET_TOKEN_EXPIRES_IN,
@@ -131,16 +124,107 @@ export const login = async (req, res, next) => {
     next(err);
   }
 };
+
+export const forgotPassword = async (req, res, next) => {
+  try {
+    // Ask for email
+    // Check email is in valid format
+
+    // Find user based on email
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return next(new AppError('Incorrect email address', 404));
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const encryptedResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    const resetLink = `${req.protocol}://${req.get(
+      'host'
+    )}/api/v1/reset-password/${resetToken}`;
+
+    user.passwordResetToken = encryptedResetToken;
+    user.passwordResetTokenExpiresIn = new Date(Date.now() + 5000);
+    await user.save({
+      validateBeforeSave: true,
+    });
+
+    // Send link to reset password on the user's email
+    const options = {
+      to: user.email,
+      subject: 'Your Password Reset Token',
+      html: `<div>
+              <h3>Forgot your password. Please click the given link to reset your password.</h3>
+
+              <a href='${resetLink}'>Click here</a>
+             </div>`,
+    };
+    await sendMail(options);
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Email sent successfully!',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    // Get token from the url and encrypt it to find the user
+    const { resetToken } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword)
+      return next('Password are not the same', 400);
+
+    const validResetToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    // Find user from the resetToken
+    const user = await User.findOne({
+      passwordResetToken: validResetToken,
+      passwordResetTokenExpiresIn: { $gt: Date.now() },
+    });
+    if (!user) return next(new AppError('Reset link expired!', 401));
+
+    user.passwordResetToken = undefined;
+    user.passwordResetTokenExpiresIn = undefined;
+    user.password = password;
+    user.passwordChangedAt = Date.now();
+    await user.save({ validateBeforeSave: true });
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Password updated successfully!',
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const allowedRoute = (...roles) => {
+  return async (req, res, next) => {
+    if (!roles.includes(req.user.role))
+      return next(new AppError('You are forbidden to get access', 403));
+
+    next();
+  };
+};
 */
 
 export const loginByEmail = async (req, res, next) => {
   try {
     // 4 digit OTP
-    const OTP = Math.floor(Math.random() * 10000);
+    const OTP = String(Math.floor(Math.random() * 10000)).padStart(4, 0);
     const user = await User.create({ ...req.body, OTP });
 
     // Mail options
-    const options = {
+    const mailOptions = {
       to: user.email,
       subject: 'Welcome to the bookmyticket',
       html: `<div>
@@ -149,7 +233,7 @@ export const loginByEmail = async (req, res, next) => {
     };
 
     // Send OTP to the user's email to verify email
-    await sendMail(options);
+    await sendMail(mailOptions);
 
     res.status(201).json({
       status: 'success',
@@ -178,14 +262,14 @@ export const verifyEmail = async (req, res, next) => {
     await user.save();
 
     // Generate token and allow user to login
-    const token = jwt.sign({ set: user.email }, process.env.JWT_SECRET_TOKEN, {
+    const token = jwt.sign({ sub: user._id }, process.env.JWT_SECRET_TOKEN, {
       expiresIn: process.env.JWT_SECRET_TOKEN_EXPIRES_IN,
     });
 
     res.status(200).json({
       status: 'success',
       token,
-      data: user,
+      // data: user,
     });
   } catch (err) {
     next(err);
@@ -194,8 +278,41 @@ export const verifyEmail = async (req, res, next) => {
 
 export const protect = async (req, res, next) => {
   try {
-    // Check user exists or not in DB
-    const user = await User.find();
+    // Get token from headers
+    let token;
+    if (req.headers?.authorization?.startsWith('Bearer')) {
+      token = req.headers.authorization.split(' ')[1];
+    }
+
+    if (!token)
+      return next(
+        new AppError("You're not logged in, please login to get access", 401)
+      );
+
+    // Verify token
+    const decode = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+
+    // Check token expired or invalid done in error handler
+
+    // Find user after token verification
+    const user = await User.findById(decode.sub);
+    if (!user)
+      return next(new AppError('User does not exist for this token', 401));
+
+    // Check user changed password
+    if (user.changedPasswordAt) {
+      console.log(user.changedPasswordAt);
+      console.log(decode.iat);
+
+      if (user.changedPasswordAt > decode.iat)
+        return next(
+          new AppError('User recenlty changed password, please login again')
+        );
+    }
+
+    // Set user in req object
+    req.user = user;
+    next();
   } catch (err) {
     next(err);
   }
@@ -203,7 +320,18 @@ export const protect = async (req, res, next) => {
 
 export const updateProfile = async (req, res, next) => {
   try {
-    // Find user
+    // Get user based on token and update
+    const { email } = req.user;
+
+    const user = await User.findOneAndUpdate({ email }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(201).json({
+      status: 'success',
+      data: user,
+    });
   } catch (err) {
     next(err);
   }

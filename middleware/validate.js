@@ -1,16 +1,35 @@
 import { Joi, celebrate } from 'celebrate';
 
-// export const signupValidation = celebrate({
-//   body: Joi.object({
-//     name: Joi.string().required().trim().min(2).max(30).message('Provide name'),
-//     email: Joi.string().required().trim().email().message('Invalid email'),
-//     password: Joi.string().required().min(4).max(30),
-//     confirmPassword: Joi.ref('password'),
-//     createdAt: Joi.date().default(Date.now()),
-//   }),
-// });
+export const signup = celebrate({
+  body: Joi.object({
+    name: Joi.string().required().trim().min(2).max(30).message('Provide name'),
+    email: Joi.string()
+      .required()
+      .trim()
+      .email()
+      .message('Invalid email address'),
+    password: Joi.string().required().min(4).max(30),
+    confirmPassword: Joi.ref('password'),
+  }),
+});
 
-// User
+export const forgotPassword = celebrate({
+  body: Joi.object({
+    email: Joi.string()
+      .required()
+      .trim()
+      .email()
+      .message('Invalid email address'),
+  }),
+});
+
+export const resetPassword = celebrate({
+  body: Joi.object({
+    password: Joi.string().required().min(6).max(30).message('PASSWORD'),
+    confirmPassword: Joi.ref('password'),
+  }),
+});
+
 export const loginByEmail = celebrate({
   body: Joi.object({
     email: Joi.string().required().email().message('Invalid email address'),
@@ -65,5 +84,15 @@ export const createMovie = celebrate({
     releaseDate: Joi.date().required(),
     about: Joi.string().required().min(10).max(200).trim().message('ABOUT'),
     cast: Joi.object().pattern(Joi.string(), Joi.string()).required(),
+  }),
+});
+
+// Cinema
+export const createCinema = celebrate({
+  body: Joi.object({
+    name: Joi.string().required().min(2).max(60).trim().message('cinemaName'),
+    type: Joi.string().required().min(2).max(15).trim().message('cinemaType'),
+    location: Joi.string().required().min(2).max(50).trim().message('location'),
+    state: Joi.string().required().min(2).max(30).trim().message('state'),
   }),
 });

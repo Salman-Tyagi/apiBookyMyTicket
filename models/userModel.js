@@ -74,6 +74,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    password: String,
+    confirmPassword: String,
     OTP: {
       type: Number,
     },
@@ -92,11 +94,19 @@ const userSchema = new mongoose.Schema(
     landmark: String,
     city: String,
     state: String,
-    
+
     verified: {
       type: Boolean,
       default: false,
     },
+    role: {
+      type: String,
+      enum: ['admin', 'user'],
+      default: 'user',
+    },
+    passwordResetToken: String,
+    passwordResetTokenExpiresIn: Date,
+    passwordChangedAt: Date,
     createdAt: {
       type: Date,
       default: Date.now(),

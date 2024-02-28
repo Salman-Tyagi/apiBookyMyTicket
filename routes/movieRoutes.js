@@ -1,11 +1,12 @@
 import express from 'express';
 import * as validate from '../middleware/validate.js';
 import * as movieController from '../controllers/movieController.js';
+import * as authController from '../controllers/authController.js';
 import uploadImg from '../middleware/multer.js';
 
 const router = express.Router();
 
-router.get('/', movieController.getMovies);
+router.get('/', authController.protect, movieController.getAllMovies);
 
 router.post(
   '/',
