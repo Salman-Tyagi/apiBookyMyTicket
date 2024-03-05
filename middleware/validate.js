@@ -90,9 +90,10 @@ export const createMovie = celebrate({
 // Cinema
 export const createCinema = celebrate({
   body: Joi.object({
-    name: Joi.string().required().min(2).max(60).trim().message('cinemaName'),
-    type: Joi.string().required().min(2).max(15).trim().message('cinemaType'),
-    location: Joi.string().required().min(2).max(50).trim().message('location'),
-    state: Joi.string().required().min(2).max(30).trim().message('state'),
+    name: Joi.string().required().min(2).max(60).trim().label('Name'),
+    type: Joi.string().required().min(2).max(15).trim().label('Type'),
+    location: Joi.string().required().min(2).max(50).trim().label('Location'),
+    address: Joi.string().required().min(2).max(140).trim().label('Address'),
+    state: Joi.string().required().min(2).max(30).trim().label('State'),
   }),
 });

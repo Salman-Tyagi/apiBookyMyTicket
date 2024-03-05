@@ -6,7 +6,7 @@ import uploadImg from '../middleware/multer.js';
 
 const router = express.Router();
 
-router.get('/', authController.protect, movieController.getAllMovies);
+router.get('/', movieController.getAllMovies);
 
 router.post(
   '/',
