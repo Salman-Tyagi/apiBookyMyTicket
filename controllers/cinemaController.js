@@ -30,7 +30,7 @@ export const createCinema = async (req, res, next) => {
 export const getCinema = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const cinema = await Cinema.findOne({ _id: id });
+    const cinema = await Cinema.findOne({ _id: id }).populate('movies');
 
     res.status(200).json({
       status: 'success',
