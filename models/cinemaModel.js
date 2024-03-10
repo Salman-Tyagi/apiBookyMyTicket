@@ -12,6 +12,17 @@ const cinemaSchema = new mongoose.Schema(
     },
     screen: {
       type: [String],
+      enum: ['2D', '3D', 'IMAX', '4DX', 'MX4D', 'IMAX 2D'],
+      required: true,
+    },
+    facilities: {
+      type: Object,
+      cancellation: Boolean,
+      foodAndBeverage: Boolean,
+      mTicket: Boolean,
+      wheelChair: Boolean,
+      reclinerSeats: Boolean,
+      parking: Boolean,
       required: true,
     },
     location: {
@@ -26,13 +37,27 @@ const cinemaSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    movies: [
+      // To store array of ids wrap in array
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Movie',
+      },
+    ],
+    timing: {
+      type: [String],
+    },
+    seats: {
+      type: Object,
+      default: {
+        vip: Array.from({ length: 3 }),
+        executive: Array.from({ length: 5 }),
+        normal: Array.from({ length: 7 }),
+      },
+    },
     createdAt: {
       type: Date,
       default: Date.now(),
-    },
-    movies: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Movie',
     },
   },
   {

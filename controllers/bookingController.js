@@ -1,5 +1,9 @@
+import moment from 'moment';
 import Booking from '../models/bookingModel.js';
 import Cinema from '../models/cinemaModel.js';
+import Movie from '../models/movieModel.js';
+
+import AppError from '../utils/appError.js';
 
 export const getAllBookings = async (req, res, next) => {
   try {
@@ -17,26 +21,80 @@ export const getAllBookings = async (req, res, next) => {
 
 export const initBooking = async (req, res, next) => {
   try {
-    const { screen, movie } = req.query;
+    const { screen, movieId } = req.query;
 
-    const movieCinemas = await Cinema.updateMany(
-      {
-        screen: {
-          $in: [screen],
+    const movie = await Movie.findOne({ _id: movieId });
+    if (!movie)
+      return next(
+        new AppError(
+          'Currently, this movie is not premiere in any theatre',
+          400
+        )
+      );
+
+    const timings = [];
+    const currentDateWithTime = moment();
+    let time = currentDateWithTime.format('LT').toString().padStart(8, 0);
+
+    for (let i = 0; i < process.env.SHOWS_PER_DAY; i++) {
+      timings.push(time);
+
+      time = String(currentDateWithTime.add(4, 'hours').format('LT')).padStart(
+        8,
+        0
+      );
+    }
+
+    const { acknowledged, matchedCount, modifiedCount, upsertedCount } =
+      await Cinema.updateMany(
+        {
+          screen: {
+            $in: [screen],
+          },
         },
-      },
-      {
-        $set: {
-          movies: movie,
-        },
-      },
-      { multi: true }
-    );
+        {
+          $set: {
+            movies: movieId,
+            timing: timings,
+          },
+        }
+      );
+
+    if (matchedCount === 0 && modifiedCount === 0 && upsertedCount === 0)
+      return next(new AppError(`Movie not availbale in ${screen}`, 400));
 
     res.status(201).json({
       status: 'success',
-      count: movieCinemas.length,
-      data: movieCinemas,
+      message: `Cinemas updated for ${screen} movie!`,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const checkSeats = async (req, res, next) => {
+  try {
+    const { seatType, seatNum, cinemaName, location } = req.query;
+
+    const seat = `seats.${seatType}.${seatNum - 1}`;
+    const cinema = await Cinema.findOneAndUpdate(
+      {
+        name: cinemaName,
+        location,
+        [seat]: false,
+      },
+      {
+        $set: {
+          [seat]: true,
+        },
+      }
+    );
+
+    if (!cinema) return next(new AppError('Seats already booked', 400));
+
+    res.status(201).json({
+      status: 'success',
+      message: `${seat} booked successfully! Please pay the ticket amount`,
     });
   } catch (err) {
     next(err);
@@ -46,8 +104,8 @@ export const initBooking = async (req, res, next) => {
 export const createBooking = async (req, res, next) => {
   try {
     const newBooking = await Booking.create({
-      cinema,
-      movie,
+      // cinema,
+      // movie,
     });
 
     res.status(201).json({

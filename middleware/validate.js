@@ -76,7 +76,7 @@ export const createMovie = celebrate({
     rating: Joi.number().required().min(1).max(10).default(4.5),
     review: Joi.string().required().min(5).max(50).trim().message('REVIEW'),
     votes: Joi.number().required().integer().message('VOTES'),
-    screenType: Joi.array().items(Joi.string()).required(),
+    screen: Joi.array().items(Joi.string()).required(),
     language: Joi.array().items(Joi.string()).required(),
     genre: Joi.array().items(Joi.string()).required(),
     duration: Joi.number().required().integer().max(240).message('DURATION'),
@@ -90,10 +90,47 @@ export const createMovie = celebrate({
 // Cinema
 export const createCinema = celebrate({
   body: Joi.object({
-    name: Joi.string().required().min(2).max(60).trim().label('Name'),
-    type: Joi.string().required().min(2).max(15).trim().label('Type'),
-    location: Joi.string().required().min(2).max(50).trim().label('Location'),
-    address: Joi.string().required().min(2).max(140).trim().label('Address'),
-    state: Joi.string().required().min(2).max(30).trim().label('State'),
+    name: Joi.string()
+      .required()
+      .min(2)
+      .max(60)
+      .trim()
+      .required()
+      .label('Name'),
+    type: Joi.string()
+      .required()
+      .min(2)
+      .max(15)
+      .trim()
+      .required()
+      .label('Type'),
+    screen: Joi.array().items(Joi.string()).required().label('Screen'),
+    facilities: Joi.object()
+      .pattern(Joi.string(), Joi.boolean())
+      .required()
+      .label('Facilities'),
+    timing: Joi.array().items(Joi.string()).label('Timing'),
+    seats: Joi.object().pattern(Joi.string(), Joi.array()).label('Seats'),
+    location: Joi.string()
+      .required()
+      .min(2)
+      .max(50)
+      .trim()
+      .required()
+      .label('Location'),
+    address: Joi.string()
+      .required()
+      .min(2)
+      .max(140)
+      .trim()
+      .required()
+      .label('Address'),
+    state: Joi.string()
+      .required()
+      .min(2)
+      .max(30)
+      .trim()
+      .required()
+      .label('State'),
   }),
 });
