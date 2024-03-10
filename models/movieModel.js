@@ -35,7 +35,7 @@ const movieSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    screenType: {
+    screen: {
       type: [String],
       enum: ['2D', '3D', '4DX', 'MX4D', 'IMAX 2D'],
       // default: ['2D'],
