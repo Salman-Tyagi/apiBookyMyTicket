@@ -17,7 +17,7 @@ router.post(
 
 router.get('/:id', movieController.getMovie);
 
-router.patch('/:id', movieController.updateMovie);
+router.patch('/:id', uploadImg.array('images', 2), movieController.updateMovie);
 
 router.delete('/:id', movieController.deleteMovie);
 

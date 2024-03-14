@@ -92,6 +92,9 @@ export const checkSeats = async (req, res, next) => {
 
     if (!cinema) return next(new AppError('Seats already booked', 400));
 
+    if (matchedCount === 0 && modifiedCount === 0 && upsertedCount === 0)
+      return next(new AppError(`Movie not availbale in ${screen}`, 400));
+
     res.status(201).json({
       status: 'success',
       message: `${seat} booked successfully! Please pay the ticket amount`,
