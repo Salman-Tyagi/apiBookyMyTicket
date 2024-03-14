@@ -23,6 +23,17 @@ const cinemaSchema = new mongoose.Schema(
       wheelChair: Boolean,
       reclinerSeats: Boolean,
       parking: Boolean,
+      enum: ['2D', '3D', 'IMAX', '4DX', 'MX4D', 'IMAX 2D'],
+      required: true,
+    },
+    facilities: {
+      type: Object,
+      cancellation: Boolean,
+      foodAndBeverage: Boolean,
+      mTicket: Boolean,
+      wheelChair: Boolean,
+      reclinerSeats: Boolean,
+      parking: Boolean,
       required: true,
     },
     location: {

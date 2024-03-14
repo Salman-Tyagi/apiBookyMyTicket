@@ -37,7 +37,7 @@ const movieSchema = new mongoose.Schema(
     },
     screen: {
       type: [String],
-      enum: ['2D', '3D', '4DX', 'MX4D', 'IMAX 2D'],
+      enum: ['2d', '3d', '4dx', 'mx4d', 'imax 2d'],
       // default: ['2D'],
       required: true,
     },
@@ -67,8 +67,8 @@ const movieSchema = new mongoose.Schema(
     },
     cast: {
       type: Object,
-      actor: String,
-      actoress: String,
+      actor: [String],
+      actoress: [String],
       required: true,
     },
     createdAt: {

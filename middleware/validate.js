@@ -67,7 +67,6 @@ export const updateProfile = celebrate({
   }),
 });
 
-// Movie
 export const createMovie = celebrate({
   body: Joi.object({
     title: Joi.string().required().min(2).max(100).trim().message('TITLE'),
@@ -82,12 +81,14 @@ export const createMovie = celebrate({
     duration: Joi.number().required().integer().max(240).message('DURATION'),
     certification: Joi.string().required(),
     releaseDate: Joi.date().required(),
-    about: Joi.string().required().min(10).max(200).trim().message('ABOUT'),
-    cast: Joi.object().pattern(Joi.string(), Joi.string()).required(),
+    about: Joi.string().required().min(10).max(300).trim().message('ABOUT'),
+    cast: Joi.object()
+      .pattern(Joi.string(), Joi.array().items(Joi.string()))
+      .required()
+      .label('Cast'),
   }),
 });
 
-// Cinema
 export const createCinema = celebrate({
   body: Joi.object({
     name: Joi.string()
