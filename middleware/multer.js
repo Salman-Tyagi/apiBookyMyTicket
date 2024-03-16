@@ -1,4 +1,5 @@
 import multer from 'multer';
+import AppError from '../utils/appError.js';
 
 // To add as suffix in uploaded image
 const randomNum = (min, max) =>
@@ -17,7 +18,6 @@ const storage = multer.diskStorage({
       0,
       1001
     )}.${file.originalname.split('.')[1]}`;
-    console.log(fileName);
 
     if (req.body[file.fieldname]) {
       req.body[file.fieldname].push(fileName);
@@ -31,14 +31,12 @@ const storage = multer.diskStorage({
 
 // Document type must be image
 const imageFilter = (req, file, cb) => {
-  console.log(file);
   if (!file.mimetype.startsWith('image')) {
     return cb(
-      {
-        status: 'fail',
-        statusCode: 400,
-        message: 'File not supported, only .jpg, .jpeg, .png images allowed',
-      },
+      new AppError(
+        'File not supported, only .jpg, .jpeg, .png images allowed',
+        404
+      ),
       false
     );
   }

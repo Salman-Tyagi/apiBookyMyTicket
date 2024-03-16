@@ -2,7 +2,6 @@ import moment from 'moment';
 import Booking from '../models/bookingModel.js';
 import Cinema from '../models/cinemaModel.js';
 import Movie from '../models/movieModel.js';
-
 import AppError from '../utils/appError.js';
 
 export const getAllBookings = async (req, res, next) => {
@@ -32,35 +31,36 @@ export const initBooking = async (req, res, next) => {
         )
       );
 
-    const timings = [];
-    const currentDateWithTime = moment();
-    let time = currentDateWithTime.format('LT').toString().padStart(8, 0);
+    const timing = [];
+    let initialMovieTime = new Date().setHours(9, 0, 0);
+    const currentDateTime = moment();
 
     for (let i = 0; i < process.env.SHOWS_PER_DAY; i++) {
-      timings.push(time);
+      if (moment(initialMovieTime) >= currentDateTime)
+        timing.push(moment(initialMovieTime).format());
 
-      time = String(currentDateWithTime.add(4, 'hours').format('LT')).padStart(
-        8,
-        0
-      );
+      initialMovieTime = moment(initialMovieTime).add(4, 'hours');
     }
 
-    const { acknowledged, matchedCount, modifiedCount, upsertedCount } =
-      await Cinema.updateMany(
-        {
-          screen: {
-            $in: [screen],
-          },
+    const result = await Cinema.updateMany(
+      {
+        screen: {
+          $in: [screen],
         },
-        {
-          $set: {
-            movies: movieId,
-            timing: timings,
-          },
-        }
-      );
+      },
+      {
+        $set: {
+          movies: movieId,
+          timing,
+        },
+      }
+    );
 
-    if (matchedCount === 0 && modifiedCount === 0 && upsertedCount === 0)
+    if (
+      result.matchedCount === 0 &&
+      result.modifiedCount === 0 &&
+      result.upsertedCount === 0
+    )
       return next(new AppError(`Movie not availbale in ${screen}`, 400));
 
     res.status(201).json({
@@ -92,12 +92,14 @@ export const checkSeats = async (req, res, next) => {
 
     if (!cinema) return next(new AppError('Seats already booked', 400));
 
-    if (matchedCount === 0 && modifiedCount === 0 && upsertedCount === 0)
-      return next(new AppError(`Movie not availbale in ${screen}`, 400));
+    // if (matchedCount === 0 && modifi edCount === 0 && upsertedCount === 0)
+    //   return next(new AppError(`Movie not availbale in ${screen}`, 400));
 
     res.status(201).json({
       status: 'success',
-      message: `${seat} booked successfully! Please pay the ticket amount`,
+      message: `You chose Seat: ${
+        seatType[0].toUpperCase() + seatType.slice(1)
+      }-${seatNum}, Please pay the ticket amount`,
     });
   } catch (err) {
     next(err);

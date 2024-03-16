@@ -1,6 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
-import cors from 'cors';
+// import cors from 'cors';
 
 import userRoutes from './routes/userRoutes.js';
 import cityRoutes from './routes/cityRoutes.js';
@@ -21,7 +21,7 @@ app.use(express.json());
 // Static files
 app.use(express.static('public'));
 
-app.use(cors());
+// app.use(cors());
 
 app.use((req, res, next) => {
   // console.log(req.headers);
