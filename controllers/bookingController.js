@@ -33,10 +33,9 @@ export const initBooking = async (req, res, next) => {
 
     const timing = [];
     let initialMovieTime = new Date().setHours(9, 0, 0);
-    const currentDateTime = moment();
 
     for (let i = 0; i < process.env.SHOWS_PER_DAY; i++) {
-      if (moment(initialMovieTime) >= currentDateTime)
+      if (moment(initialMovieTime) >= moment())
         timing.push(moment(initialMovieTime).format());
 
       initialMovieTime = moment(initialMovieTime).add(4, 'hours');
