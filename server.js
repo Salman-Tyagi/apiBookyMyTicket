@@ -17,5 +17,5 @@ const DB = process.env.DEV_DB;
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, '127.0.0.1', function () {
-  console.log('Listening to the port', PORT, 'in', process.env.NODE_ENV);
+  console.log(`Listening to the port ${PORT} in ${process.env.NODE_ENV}`);
 });
