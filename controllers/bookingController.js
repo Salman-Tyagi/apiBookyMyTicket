@@ -4,6 +4,8 @@ import Cinema from '../models/cinemaModel.js';
 import Movie from '../models/movieModel.js';
 import AppError from '../utils/appError.js';
 
+const days = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'];
+
 export const getAllBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find();
@@ -33,12 +35,26 @@ export const initBooking = async (req, res, next) => {
 
     const timing = [];
     let initialMovieTime = new Date().setHours(9, 0, 0);
+    const currentDateTime = moment();
+    const day = new Date().getDay();
+    let dayCount = 1;
 
-    for (let i = 0; i < process.env.SHOWS_PER_DAY; i++) {
-      if (moment(initialMovieTime) >= moment())
-        timing.push(moment(initialMovieTime).format());
+    for (let i = day; i <= process.env.SHOWS_PER_WEEK; i++) {
+      const day = days[i];
 
-      initialMovieTime = moment(initialMovieTime).add(4, 'hours');
+      for (let j = 0; j < process.env.SHOWS_PER_DAY; j++) {
+        if (moment(initialMovieTime) >= currentDateTime)
+          timing.push(moment(initialMovieTime).format());
+
+        initialMovieTime = moment(initialMovieTime).add(4, 'hours');
+      }
+
+      initialMovieTime = new Date(moment().add(dayCount, 'days')).setHours(
+        9,
+        0,
+        0
+      );
+      dayCount++;
     }
 
     const result = await Cinema.updateMany(
