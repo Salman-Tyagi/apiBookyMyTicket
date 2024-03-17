@@ -135,3 +135,10 @@ export const createCinema = celebrate({
       .label('State'),
   }),
 });
+
+export const createUpdateRating = celebrate({
+  body: Joi.object({
+    rating: Joi.number().integer().required().min(1).max(10).label('Rating'),
+    review: Joi.string().required().min(4).max(100).trim().label('Review'),
+  }),
+});

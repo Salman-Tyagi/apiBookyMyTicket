@@ -220,8 +220,15 @@ export const allowedRoute = (...roles) => {
 export const loginByEmail = async (req, res, next) => {
   try {
     // 4 digit OTP
+    const { email } = req.body;
     const OTP = String(Math.floor(Math.random() * 10000)).padStart(4, 0);
-    const user = await User.create({ ...req.body, OTP });
+
+    let user = await User.findOneAndUpdate(
+      { email },
+      { verified: false, OTP },
+      { new: true, runValidators: true }
+    );
+    if (!user) user = await User.create({ ...req.body, OTP });
 
     // Mail options
     const mailOptions = {
@@ -301,9 +308,6 @@ export const protect = async (req, res, next) => {
 
     // Check user changed password
     if (user.changedPasswordAt) {
-      console.log(user.changedPasswordAt);
-      console.log(decode.iat);
-
       if (user.changedPasswordAt > decode.iat)
         return next(
           new AppError('User recenlty changed password, please login again')
