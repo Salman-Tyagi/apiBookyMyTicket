@@ -123,14 +123,15 @@ export const checkSeats = async (req, res, next) => {
 
 export const createBooking = async (req, res, next) => {
   try {
-    const newBooking = await Booking.create({
-      // cinema,
-      // movie,
-    });
+    const user = req.user.id;
+    const { movie, cinema } = req.query;
+    const payload = { ...req.body, cinema, movie, user };
+
+    const booking = await Booking.create(payload);
 
     res.status(201).json({
       status: 'success',
-      data: newBooking,
+      data: booking,
     });
   } catch (err) {
     next(err);
@@ -139,7 +140,10 @@ export const createBooking = async (req, res, next) => {
 
 export const getBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findById(req.params.id);
+    const booking = await Booking.findById(req.params.id).populate({
+      path: 'cinema movie user',
+      select: 'name location title email',
+    });
 
     res.status(200).json({
       status: 'success',

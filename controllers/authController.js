@@ -207,7 +207,9 @@ export const resetPassword = async (req, res, next) => {
   }
 };
 
-export const allowedRoute = (...roles) => {
+*/
+
+export const allowedTo = (...roles) => {
   return async (req, res, next) => {
     if (!roles.includes(req.user.role))
       return next(new AppError('You are forbidden to get access', 403));
@@ -215,7 +217,6 @@ export const allowedRoute = (...roles) => {
     next();
   };
 };
-*/
 
 export const loginByEmail = async (req, res, next) => {
   try {
