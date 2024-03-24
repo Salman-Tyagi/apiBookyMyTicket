@@ -4,8 +4,6 @@ import Cinema from '../models/cinemaModel.js';
 import Movie from '../models/movieModel.js';
 import AppError from '../utils/appError.js';
 
-const days = ['sun', 'mon', 'tue', 'wed', 'thur', 'fri', 'sat'];
-
 export const getAllBookings = async (req, res, next) => {
   try {
     const bookings = await Booking.find();
@@ -34,26 +32,25 @@ export const initBooking = async (req, res, next) => {
       );
 
     const timing = [];
-    let initialMovieTime = new Date().setHours(9, 0, 0);
-    const currentDateTime = moment();
-    const day = new Date().getDay();
+    const day = moment().day();
+
+    let initialMovieTime = moment().hour(9).minute(0).second(0);
     let dayCount = 1;
 
     for (let i = day; i <= process.env.SHOWS_PER_WEEK; i++) {
-      const day = days[i];
-
       for (let j = 0; j < process.env.SHOWS_PER_DAY; j++) {
-        if (moment(initialMovieTime) >= currentDateTime)
-          timing.push(moment(initialMovieTime).format());
+        if (initialMovieTime >= moment())
+          timing.push(initialMovieTime.format());
 
-        initialMovieTime = moment(initialMovieTime).add(4, 'hours');
+        initialMovieTime = initialMovieTime.add(4, 'hours');
       }
 
-      initialMovieTime = new Date(moment().add(dayCount, 'days')).setHours(
-        9,
-        0,
-        0
-      );
+      initialMovieTime = moment()
+        .add(dayCount, 'days')
+        .hour(9)
+        .minute(0)
+        .second(0);
+
       dayCount++;
     }
 
@@ -140,10 +137,19 @@ export const createBooking = async (req, res, next) => {
 
 export const getBooking = async (req, res, next) => {
   try {
-    const booking = await Booking.findById(req.params.id).populate({
+    const { id } = req.params;
+    const user = req.user.id;
+
+    const booking = await Booking.findOne({
+      _id: id,
+      user,
+    }).populate({
       path: 'cinema movie user',
       select: 'name location title email',
     });
+
+    if (!booking)
+      return next(new AppError('You have not booked any movie yet', 401));
 
     res.status(200).json({
       status: 'success',

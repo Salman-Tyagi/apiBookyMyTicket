@@ -222,7 +222,11 @@ export const loginByEmail = async (req, res, next) => {
   try {
     // 4 digit OTP
     const { email } = req.body;
-    const OTP = String(Math.floor(Math.random() * 10000)).padStart(4, 0);
+    const randomInt = Math.floor(Math.random() * 10);
+    const OTP = String(Math.floor(Math.random() * 1000000)).padStart(
+      6,
+      randomInt
+    );
 
     let user = await User.findOneAndUpdate(
       { email },
