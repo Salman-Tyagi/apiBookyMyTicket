@@ -1,5 +1,7 @@
 import Rating from '../models/ratingModel.js';
+import Movie from '../models/movieModel.js';
 import AppError from '../utils/appError.js';
+import * as movieEntity from '../entity/movieEntity.js';
 
 export const getAllRatings = async (req, res, next) => {
   try {
@@ -21,7 +23,11 @@ export const createRating = async (req, res, next) => {
     const { id } = req.params;
     const payload = { ...req.body, user: userId, movie: id };
 
+    const movie = await Movie.findOne({ _id: id });
+    if (!movie) return next(new AppError('No movie found', 404));
+
     const rating = await Rating.create(payload);
+    await movieEntity.calcMovieRatingAvg(id);
 
     res.status(201).json({
       status: 'success',
