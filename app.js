@@ -22,7 +22,7 @@ app.use(express.json());
 // Static files
 app.use(express.static('public'));
 
-// To allow access resources request from other domain
+// To allow access resources request from other origin (domain)
 app.use(cors());
 
 // Middleware

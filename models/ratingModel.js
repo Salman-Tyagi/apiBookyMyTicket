@@ -16,7 +16,7 @@ const ratingSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      unique: true,
+      // unique: true,
     },
     movie: {
       type: mongoose.Schema.Types.ObjectId,
@@ -27,6 +27,8 @@ const ratingSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+
+ratingSchema.index({ user: 1, movie: 1 }, { unique: true });
 
 const Rating = mongoose.model('Rating', ratingSchema);
 

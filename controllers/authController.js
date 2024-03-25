@@ -206,7 +206,6 @@ export const resetPassword = async (req, res, next) => {
     next(err);
   }
 };
-
 */
 
 export const allowedTo = (...roles) => {
@@ -221,7 +220,7 @@ export const allowedTo = (...roles) => {
 export const loginByEmail = async (req, res, next) => {
   try {
     // 4 digit OTP
-    const { email } = req.body;
+    const { email, mobileNumber } = req.body;
     const randomInt = Math.floor(Math.random() * 10);
     const OTP = String(Math.floor(Math.random() * 1000000)).padStart(
       6,
@@ -229,25 +228,30 @@ export const loginByEmail = async (req, res, next) => {
     );
 
     let user = await User.findOneAndUpdate(
-      { email },
+      req.body,
       { verified: false, OTP },
       { new: true, runValidators: true }
     );
     if (!user) user = await User.create({ ...req.body, OTP });
 
     // Mail options
-    const mailOptions = {
-      to: user.email,
-      subject: 'Welcome to the bookmyticket',
-      html: `<div>
-              <h3>Your OTP is ${OTP}</h3>
-             </div>`,
-    };
+    // if (email) {
+    //   const mailOptions = {
+    //     to: user.email,
+    //     subject: 'Welcome to the bookmyticket',
+    //     html: `
+    //           <div>
+    //             <h3>Your OTP is ${OTP}</h3>
+    //           </div>
+    //           `,
+    //   };
 
-    // Send OTP to the user's email to verify email
-    await sendMail(mailOptions);
+    //   // Send OTP to the user's email to verify email
+    //   async () => await sendMail(mailOptions);
+    // }
 
     res.status(201).json({
+      message: mobileNumber && 'Not yet implemented',
       status: 'success',
       data: user,
     });

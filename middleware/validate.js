@@ -2,7 +2,7 @@ import { Joi, celebrate } from 'celebrate';
 
 export const signup = celebrate({
   body: Joi.object({
-    name: Joi.string().required().trim().min(2).max(30).message('Provide name'),
+    name: Joi.string().required().trim().min(2).max(30).label('Provide name'),
     email: Joi.string()
       .required()
       .trim()
@@ -46,6 +46,12 @@ export const verifyEmail = celebrate({
   }),
 });
 
+export const loginByMobile = celebrate({
+  body: Joi.object({
+    mobileNumber: Joi.number().integer().required().min(10).label('Mobile'),
+  }),
+});
+
 export const updateProfile = celebrate({
   body: Joi.object({
     email: Joi.string().email().message('Invalid email address'),
@@ -69,19 +75,22 @@ export const updateProfile = celebrate({
 
 export const createMovie = celebrate({
   body: Joi.object({
-    title: Joi.string().required().min(2).max(100).trim().message('TITLE'),
-    images: Joi.array().items(Joi.string()).required(),
-    video: Joi.string().min(2).max(50).trim().message('VIDEO'),
+    title: Joi.string().required().min(2).max(100).trim().label('Title'),
+    images: Joi.array().items(Joi.string()).label('Images'),
+    video: Joi.string().min(2).max(50).trim().label('Video'),
     rating: Joi.number().required().min(1).max(10).default(4.5),
-    review: Joi.string().required().min(5).max(50).trim().message('REVIEW'),
-    votes: Joi.number().required().integer().message('VOTES'),
-    screen: Joi.array().items(Joi.string()).required(),
+    review: Joi.string().required().min(5).max(50).trim().label('Review'),
+    votes: Joi.number().required().label('Votes'),
+    screen: Joi.array()
+      .items(Joi.string().valid('2d', '3d', '4dx', 'mx4d', 'imax 2d'))
+      .required()
+      .label('Screen'),
     language: Joi.array().items(Joi.string()).required(),
     genre: Joi.array().items(Joi.string()).required(),
-    duration: Joi.number().required().integer().max(240).message('DURATION'),
+    duration: Joi.number().required().integer().max(240).label('Duration'),
     certification: Joi.string().required(),
     releaseDate: Joi.date().required(),
-    about: Joi.string().required().min(10).max(300).trim().message('ABOUT'),
+    about: Joi.string().required().min(10).max(500).trim().label('About'),
     cast: Joi.object()
       .pattern(Joi.string(), Joi.array().items(Joi.string()))
       .required()
