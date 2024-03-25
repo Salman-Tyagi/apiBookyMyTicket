@@ -10,6 +10,7 @@ router.get('/', ratingController.getAllRatings);
 router.use(authController.protect);
 
 router.post('/:id', validate.createUpdateRating, ratingController.createRating);
+
 router.get('/:id', ratingController.getRating);
 
 router.patch(

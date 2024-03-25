@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Movie from './movieModel.js';
 
 const ratingSchema = new mongoose.Schema(
   {
@@ -16,7 +17,6 @@ const ratingSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      // unique: true,
     },
     movie: {
       type: mongoose.Schema.Types.ObjectId,
