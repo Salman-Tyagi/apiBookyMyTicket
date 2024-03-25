@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllUsers } from '../controllers/userController.js';
+import * as userController from '../controllers/userController.js';
 import * as authController from '../controllers/authController.js';
 import * as validate from '../middleware/validate.js';
 
@@ -29,6 +29,12 @@ router.post(
   authController.loginByEmail
 );
 
+router.post(
+  '/login-by-mobile',
+  validate.loginByMobile,
+  authController.loginByEmail
+);
+
 router.post('/verify-email', validate.verifyEmail, authController.verifyEmail);
 
 router.post(
@@ -38,6 +44,11 @@ router.post(
   authController.updateProfile
 );
 
-router.get('/users', getAllUsers);
+router.get(
+  '/users',
+  authController.protect,
+  authController.allowedTo('admin'),
+  userController.getAllUsers
+);
 
 export default router;
