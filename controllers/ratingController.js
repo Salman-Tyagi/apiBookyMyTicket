@@ -2,10 +2,11 @@ import Rating from '../models/ratingModel.js';
 import Movie from '../models/movieModel.js';
 import AppError from '../utils/appError.js';
 import * as movieEntity from '../entity/movieEntity.js';
+import * as ratingEntity from '../entity/ratingEntity.js';
 
 export const getAllRatings = async (req, res, next) => {
   try {
-    const ratings = await Rating.find();
+    const ratings = await ratingEntity.find();
 
     res.status(200).json({
       status: 'success',
@@ -40,7 +41,8 @@ export const createRating = async (req, res, next) => {
 
 export const getRating = async (req, res, next) => {
   try {
-    const rating = await Rating.findOne({ _id: req.params.id })
+    const rating = await ratingEntity
+      .findOne({ _id: req.params.id })
       .populate({
         path: 'movie',
         select: 'title',
