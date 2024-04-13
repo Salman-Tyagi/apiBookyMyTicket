@@ -27,7 +27,9 @@ export const calcMovieRatingAvg = async movieId => {
   await Movie.findOneAndUpdate(
     { _id: movieId },
     {
-      rating: averageRating[0].avgRating,
+      $set: {
+        rating: averageRating[0].avgRating,
+      },
     }
   );
 };

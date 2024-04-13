@@ -2,7 +2,43 @@ import Movie from '../models/movieModel.js';
 
 export const getAllMovies = async (req, res, next) => {
   try {
-    const movies = await Movie.find();
+    const queryObj = { ...req.query };
+
+    // Filtering
+    const excludeFields = ['sort', 'page', 'limit', 'fields'];
+    excludeFields.forEach(el => delete queryObj[el]);
+
+    const queryStr = JSON.stringify(queryObj).replace(
+      /b\lt|lte|gt|gte\b/g,
+      match => `$${match}`
+    );
+
+    let query = Movie.find(JSON.parse(queryStr));
+
+    // Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('createdAt');
+    }
+
+    // Projection
+    if (req.query.fields) {
+      const projectBy = req.query.fields.split(',').join(' ');
+      query = query.select(projectBy);
+    } else {
+      query = query.select('-__v');
+    }
+
+    // Pagination
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 5;
+    const skip = (page - 1) * limit;
+
+    query = query.skip(skip).limit(limit);
+
+    const movies = await query;
 
     res.status(200).json({
       status: 'success',

@@ -76,9 +76,9 @@ const movieSchema = new mongoose.Schema(
       default: Date.now(),
     },
   },
-  {
-    versionKey: false,
-  }
+  // {
+  //   versionKey: false,
+  // }
 );
 
 const Movie = mongoose.model('Movie', movieSchema);
