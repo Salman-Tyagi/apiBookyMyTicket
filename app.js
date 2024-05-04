@@ -10,6 +10,7 @@ import movieRoutes from './routes/movieRoutes.js';
 import cinemaRoutes from './routes/cinemaRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import ratingRoutes from './routes/ratingRoutes.js';
+import viewRoutes from './routes/viewRoutes.js';
 import AppError from './utils/appError.js';
 import globalErrorHandler from './controllers/globalError.js';
 
@@ -28,7 +29,9 @@ app.use(
 );
 
 // morgan (logger)
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
 // Body parser
 app.use(
@@ -39,6 +42,10 @@ app.use(
 
 // Static files
 app.use(express.static('public'));
+
+// Set view engine for render templates
+app.set('views', './views');
+app.set('view engine', 'ejs');
 
 // To allow access resources request from other origin (domain)
 // For simple get, post requests
@@ -52,6 +59,9 @@ app.use((req, res, next) => {
   // console.log(req.headers);
   next();
 });
+
+// Site routes
+app.use('/', viewRoutes);
 
 // API routes
 app.use('/api/v1/auth', userRoutes);
