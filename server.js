@@ -3,7 +3,10 @@ import dotenv from 'dotenv';
 import app from './app.js';
 dotenv.config({ path: '.env' });
 
-const DB = process.env.DEV_DB;
+const DB =
+  process.env.NODE_ENV === 'development'
+    ? process.env.DEV_DB
+    : process.env.PRO_DB;
 
 (async () => {
   try {
