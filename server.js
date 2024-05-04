@@ -19,6 +19,6 @@ const DB =
 })();
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, '127.0.0.1', function () {
+app.listen(PORT, function () {
   console.log(`Listening on the port ${PORT} in ${process.env.NODE_ENV}`);
 });
