@@ -12,7 +12,9 @@ const DB =
   try {
     await mongoose.connect(DB);
     console.log('DB connected successfully');
-    mongoose.set('debug', true);
+    if (process.env.NODE_ENV === 'development') {
+      mongoose.set('debug', true);
+    }
   } catch (err) {
     console.log(err);
   }
