@@ -3,6 +3,7 @@ import morgan from 'morgan';
 // import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 
 import userRoutes from './routes/userRoutes.js';
 import cityRoutes from './routes/cityRoutes.js';
@@ -40,6 +41,9 @@ app.use(
   })
 );
 
+// Cookie-parser
+app.use(cookieParser());
+
 // Static files
 app.use(express.static('public'));
 
@@ -56,7 +60,7 @@ app.set('view engine', 'ejs');
 
 // Middleware
 app.use((req, res, next) => {
-  // console.log(req.headers);
+  console.log(req.cookies);
   next();
 });
 

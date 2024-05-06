@@ -235,24 +235,24 @@ export const loginByEmail = async (req, res, next) => {
     if (!user) user = await User.create({ ...req.body, OTP });
 
     // Mail options
-    // if (email) {
-    //   const mailOptions = {
-    //     to: user.email,
-    //     subject: 'Welcome to the bookmyticket',
-    //     html: `
-    //           <div>
-    //             <h3>Your OTP is ${OTP}</h3>
-    //           </div>
-    //           `,
-    //   };
+    if (email) {
+      const mailOptions = {
+        to: user.email,
+        subject: 'Welcome to the bookmyticket',
+        html: `
+              <div>
+                <h3>Your OTP is ${OTP}</h3>
+              </div>
+              `,
+      };
 
-    //   // Send OTP to the user's email to verify email
-    //   async () => await sendMail(mailOptions);
-    // }
+      // Send OTP to the user's email to verify email
+      (async () => await sendMail(mailOptions))();
+    }
 
     res.status(201).json({
-      message: mobileNumber && 'Not yet implemented',
       status: 'success',
+      message: mobileNumber && 'Not yet implemented',
       data: user,
     });
   } catch (err) {
@@ -282,6 +282,16 @@ export const verifyEmail = async (req, res, next) => {
       expiresIn: process.env.JWT_SECRET_TOKEN_EXPIRES_IN,
     });
 
+    const cookieOptions = {
+      expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      // secure: false,
+    };
+
+    if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+    res.cookie('token', token, cookieOptions);
+
     res.status(200).json({
       status: 'success',
       token,
@@ -296,8 +306,10 @@ export const protect = async (req, res, next) => {
   try {
     // Get token from headers
     let token;
-    if (req.headers?.authorization?.startsWith('Bearer')) {
+    if (req.headers.authorization?.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+    } else {
+      token = req.cookies?.token;
     }
 
     if (!token)
